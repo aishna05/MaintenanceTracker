@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -125,3 +126,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+=======
+<form method="POST">
+  {% csrf_token %}
+  <input type="text" name="name" placeholder="Name" required />
+  <input type="email" name="email" placeholder="Email" required />
+  <input type="password" name="password" placeholder="Password" required />
+  <input type="password" name="confirm_password" placeholder="Re-enter Password" required />
+  <button type="submit">Sign Up</button>
+</form>
+>>>>>>> f2c9782093ae85f39d71042520c11cfd2ac3b462

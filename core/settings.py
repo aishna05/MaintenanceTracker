@@ -116,6 +116,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+<<<<<<< HEAD
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
@@ -123,6 +124,9 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+=======
+STATIC_URL = 'static/'
+>>>>>>> f2c9782093ae85f39d71042520c11cfd2ac3b462
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -134,3 +138,12 @@ DEFAULT_FROM_EMAIL = 'noreply@yourapp.com'
 
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
+<<<<<<< HEAD
+=======
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+>>>>>>> f2c9782093ae85f39d71042520c11cfd2ac3b462

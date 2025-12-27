@@ -4,6 +4,144 @@
 {% block title %}{{ equipment.name }} - GearGuard{% endblock %}
 
 {% block extra_css %}
+<<<<<<< HEAD
+=======
+<style>
+    .detail-container {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #fff;
+    }
+    
+    .detail-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+    
+    .smart-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 15px 25px;
+        color: #fff;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .smart-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .smart-button .badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #dc3545;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: bold;
+        border: 3px solid #16213e;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .info-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 500;
+    }
+    
+    .info-value {
+        color: #fff;
+        font-weight: 600;
+    }
+    
+    .health-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    
+    .health-good {
+        background: #28a745;
+    }
+    
+    .health-warning {
+        background: #ffc107;
+    }
+    
+    .health-critical {
+        background: #dc3545;
+    }
+    
+    .request-history-item {
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 4px solid #3788d8;
+        padding: 15px;
+        margin-bottom: 12px;
+        border-radius: 5px;
+        transition: all 0.2s;
+    }
+    
+    .request-history-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+    }
+    
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -24px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #3788d8;
+        border: 3px solid #16213e;
+    }
+</style>
+>>>>>>> f2c9782093ae85f39d71042520c11cfd2ac3b462
 {% endblock %}
 
 {% block content %}
