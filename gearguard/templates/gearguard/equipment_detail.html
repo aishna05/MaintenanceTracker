@@ -1,419 +1,466 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ equipment.name }} - GearGuard{% endblock %}
+{% block title %}Equipment List - GearGuard{% endblock %}
 
 {% block extra_css %}
-<<<<<<< HEAD
-=======
 <style>
-    .detail-container {
+    .equipment-container {
+        padding: 30px 0;
+    }
+    
+    .page-header {
         background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        min-height: 100vh;
-        padding: 20px;
         color: #fff;
-    }
-    
-    .detail-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 30px;
         border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     }
     
-    .smart-button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        border-radius: 10px;
-        padding: 15px 25px;
-        color: #fff;
-        font-weight: 600;
-        display: inline-flex;
+    .page-header h1 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 2rem;
+    }
+    
+    .page-header p {
+        margin: 10px 0 0 0;
+        opacity: 0.9;
+    }
+    
+    .filters-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .filters-header {
+        display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 10px;
-        transition: all 0.3s;
+        margin-bottom: 15px;
+    }
+    
+    .filters-title {
+        font-weight: 600;
+        color: #1a1a2e;
+        margin: 0;
+    }
+    
+    .equipment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+    }
+    
+    .equipment-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .equipment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        border-color: #3788d8;
+    }
+    
+    .equipment-header {
+        background: linear-gradient(135deg, #3788d8 0%, #2d6db5 100%);
+        color: #fff;
+        padding: 20px;
         position: relative;
         overflow: hidden;
     }
     
-    .smart-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    .equipment-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
     }
     
-    .smart-button .badge {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        background: #dc3545;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
+    .equipment-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0 0 5px 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .equipment-serial {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .equipment-body {
+        padding: 20px;
+    }
+    
+    .equipment-info {
+        margin-bottom: 15px;
+    }
+    
+    .info-item {
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        font-weight: bold;
-        border: 3px solid #16213e;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.9rem;
     }
     
-    .info-row {
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-icon {
+        color: #3788d8;
+        width: 20px;
+        text-align: center;
+    }
+    
+    .info-text {
+        color: #495057;
+        flex: 1;
+    }
+    
+    .equipment-badges {
         display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 15px;
     }
     
-    .info-label {
-        color: rgba(255, 255, 255, 0.6);
-        font-weight: 500;
-    }
-    
-    .info-value {
-        color: #fff;
+    .equipment-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
         font-weight: 600;
     }
     
-    .health-indicator {
+    .badge-category {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+    
+    .badge-department {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+    
+    .badge-requests {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+    
+    .badge-scrapped {
+        background: #ffebee;
+        color: #c62828;
+    }
+    
+    .equipment-actions {
+        display: flex;
+        gap: 10px;
+        padding-top: 15px;
+        border-top: 2px solid #f0f0f0;
+    }
+    
+    .btn-view {
+        flex: 1;
+        background: #3788d8;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .btn-view:hover {
+        background: #2d6db5;
+        color: #fff;
+    }
+    
+    .btn-edit {
+        background: #6c757d;
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-edit:hover {
+        background: #5a6268;
+        color: #fff;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state h3 {
+        color: #6c757d;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    .empty-state p {
+        color: #adb5bd;
+        margin-bottom: 20px;
+    }
+    
+    .status-indicator {
         display: inline-block;
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         margin-right: 8px;
     }
     
-    .health-good {
+    .status-active {
         background: #28a745;
     }
     
-    .health-warning {
-        background: #ffc107;
-    }
-    
-    .health-critical {
+    .status-scrapped {
         background: #dc3545;
     }
-    
-    .request-history-item {
-        background: rgba(255, 255, 255, 0.05);
-        border-left: 4px solid #3788d8;
-        padding: 15px;
-        margin-bottom: 12px;
-        border-radius: 5px;
-        transition: all 0.2s;
-    }
-    
-    .request-history-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
-    }
-    
-    .timeline {
-        position: relative;
-        padding-left: 30px;
-    }
-    
-    .timeline::before {
-        content: '';
-        position: absolute;
-        left: 10px;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background: rgba(255, 255, 255, 0.2);
-    }
-    
-    .timeline-item {
-        position: relative;
-        margin-bottom: 20px;
-    }
-    
-    .timeline-item::before {
-        content: '';
-        position: absolute;
-        left: -24px;
-        top: 5px;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: #3788d8;
-        border: 3px solid #16213e;
-    }
 </style>
->>>>>>> f2c9782093ae85f39d71042520c11cfd2ac3b462
 {% endblock %}
 
 {% block content %}
-<div class="detail-container">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="mb-0">
-                <i class="fas fa-cog"></i> {{ equipment.name }}
-            </h1>
-            <p class="text-muted mb-0">{{ equipment.serial_number }}</p>
-        </div>
-        <div>
-            <a href="{% url 'equipment_update' equipment.pk %}" class="btn btn-primary me-2">
-                <i class="fas fa-edit"></i> Edit
-            </a>
-            <a href="{% url 'equipment_list' %}" class="btn btn-outline-light">
-                <i class="fas fa-arrow-left"></i> Back to List
+<div class="container-fluid equipment-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-cogs"></i> Equipment Management</h1>
+                <p>Manage and track all company assets</p>
+            </div>
+            <a href="{% url 'gearguard:equipment_create' %}" class="btn btn-light btn-lg">
+                <i class="fas fa-plus"></i> Add Equipment
             </a>
         </div>
     </div>
-
-    <div class="row">
-        <!-- Left Column -->
-        <div class="col-md-8">
-            <!-- Equipment Details -->
-            <div class="detail-card">
-                <h3 class="mb-4">
-                    <i class="fas fa-info-circle"></i> Equipment Details
-                </h3>
-                
-                <div class="info-row">
-                    <span class="info-label">Status</span>
-                    <span class="info-value">
-                        <span class="health-indicator health-{{ equipment.get_health_status }}"></span>
-                        {% if equipment.is_scrapped %}
-                            <span class="badge bg-danger">Scrapped</span>
-                        {% else %}
-                            {{ equipment.get_health_status|title }}
-                        {% endif %}
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Category</span>
-                    <span class="info-value">{{ equipment.get_category_display }}</span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Department</span>
-                    <span class="info-value">{{ equipment.get_department_display }}</span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Location</span>
-                    <span class="info-value">{{ equipment.location }}</span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Assigned Employee</span>
-                    <span class="info-value">
-                        {% if equipment.assigned_employee %}
-                            {{ equipment.assigned_employee.get_full_name|default:equipment.assigned_employee.username }}
-                        {% else %}
-                            <span class="text-muted">Not assigned</span>
-                        {% endif %}
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Maintenance Team</span>
-                    <span class="info-value">
-                        {% if equipment.maintenance_team %}
-                            {{ equipment.maintenance_team.name }}
-                        {% else %}
-                            <span class="text-muted">Not assigned</span>
-                        {% endif %}
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Default Technician</span>
-                    <span class="info-value">
-                        {% if equipment.default_technician %}
-                            {{ equipment.default_technician.get_full_name|default:equipment.default_technician.username }}
-                        {% else %}
-                            <span class="text-muted">Not assigned</span>
-                        {% endif %}
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Purchase Date</span>
-                    <span class="info-value">
-                        {% if equipment.purchase_date %}
-                            {{ equipment.purchase_date|date:"F d, Y" }}
-                        {% else %}
-                            <span class="text-muted">Not recorded</span>
-                        {% endif %}
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Warranty Expiry</span>
-                    <span class="info-value">
-                        {% if equipment.warranty_expiry %}
-                            {{ equipment.warranty_expiry|date:"F d, Y" }}
-                            {% if equipment.warranty_expiry < today %}
-                                <span class="badge bg-danger">Expired</span>
-                            {% endif %}
-                        {% else %}
-                            <span class="text-muted">Not recorded</span>
-                        {% endif %}
-                    </span>
-                </div>
-                
-                {% if equipment.notes %}
-                <div class="info-row">
-                    <span class="info-label">Notes</span>
-                    <span class="info-value">{{ equipment.notes }}</span>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Maintenance History -->
-            <div class="detail-card">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="mb-0">
-                        <i class="fas fa-history"></i> Maintenance History
-                    </h3>
-                    <a href="{% url 'request_create' %}?equipment={{ equipment.pk }}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-plus"></i> New Request
-                    </a>
-                </div>
-                
-                <div class="timeline">
-                    {% for request in maintenance_requests %}
-                    <div class="timeline-item">
-                        <div class="request-history-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">{{ request.subject }}</h6>
-                                    <small class="text-muted">
-                                        {{ request.get_request_type_display }} | 
-                                        Created {{ request.created_at|date:"M d, Y" }}
-                                    </small>
-                                    <div class="mt-2">
-                                        <span class="badge" style="background: {% if request.stage == 'new' %}#ffc107{% elif request.stage == 'in_progress' %}#17a2b8{% elif request.stage == 'repaired' %}#28a745{% else %}#6c757d{% endif %}">
-                                            {{ request.get_stage_display }}
-                                        </span>
-                                        <span class="badge bg-secondary">
-                                            {{ request.get_priority_display }}
-                                        </span>
-                                        {% if request.assigned_to %}
-                                        <span class="badge bg-info">
-                                            {{ request.assigned_to.get_full_name|default:request.assigned_to.username }}
-                                        </span>
-                                        {% endif %}
-                                        {% if request.duration_hours %}
-                                        <span class="badge bg-success">
-                                            {{ request.duration_hours }}h
-                                        </span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <a href="{% url 'request_update' request.pk %}" class="btn btn-sm btn-outline-light">
-                                    View
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <p class="text-center text-muted py-4">No maintenance history</p>
+    
+    <!-- Filters -->
+    <div class="filters-card">
+        <div class="filters-header">
+            <h5 class="filters-title">
+                <i class="fas fa-filter"></i> Filters
+            </h5>
+            {% if selected_category or selected_department or selected_team or search_query %}
+            <a href="{% url 'gearguard:equipment_list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-times"></i> Clear Filters
+            </a>
+            {% endif %}
+        </div>
+        
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    {% for code, name in categories %}
+                    <option value="{{ code }}" {% if selected_category == code %}selected{% endif %}>
+                        {{ name }}
+                    </option>
                     {% endfor %}
-                </div>
+                </select>
             </div>
-        </div>
-
-        <!-- Right Column - Smart Buttons & Actions -->
-        <div class="col-md-4">
-            <!-- Smart Button -->
-            <div class="detail-card text-center">
-                <h4 class="mb-4">Quick Actions</h4>
-                
-                <a href="{% url 'request_create' %}?equipment={{ equipment.pk }}" class="smart-button w-100 justify-content-center mb-3">
-                    <i class="fas fa-tools fa-2x"></i>
-                    <div>
-                        <div style="font-size: 1.2rem;">Maintenance</div>
-                        <small>Create new request</small>
-                    </div>
-                    {% if open_requests_count > 0 %}
-                    <span class="badge">{{ open_requests_count }}</span>
-                    {% endif %}
-                </a>
-                
-                <div class="d-grid gap-2">
-                    <button class="btn btn-outline-light" onclick="window.print()">
-                        <i class="fas fa-print"></i> Print Details
+            
+            <div class="col-md-3">
+                <label class="form-label">Department</label>
+                <select name="department" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Departments</option>
+                    {% for code, name in departments %}
+                    <option value="{{ code }}" {% if selected_department == code %}selected{% endif %}>
+                        {{ name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Maintenance Team</label>
+                <select name="team" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Teams</option>
+                    {% for team in teams %}
+                    <option value="{{ team.id }}" {% if selected_team == team.id|stringformat:"s" %}selected{% endif %}>
+                        {{ team.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Search</label>
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Name, Serial, Location..." 
+                           value="{{ search_query|default:'' }}">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
                     </button>
-                    <a href="{% url 'equipment_update' equipment.pk %}" class="btn btn-outline-light">
-                        <i class="fas fa-edit"></i> Edit Equipment
-                    </a>
                 </div>
             </div>
-
-            <!-- Statistics -->
-            <div class="detail-card">
-                <h5 class="mb-3">
-                    <i class="fas fa-chart-bar"></i> Statistics
-                </h5>
-                
-                <div class="info-row">
-                    <span class="info-label">Open Requests</span>
-                    <span class="info-value">
-                        <span class="badge bg-warning">{{ open_requests_count }}</span>
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Total Requests</span>
-                    <span class="info-value">{{ maintenance_requests.count }}</span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Completed</span>
-                    <span class="info-value">
-                        {{ maintenance_requests|filter_by_stage:'repaired'|length }}
-                    </span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="info-label">Health Score</span>
-                    <span class="info-value">
-                        <span class="health-indicator health-{{ equipment.get_health_status }}"></span>
-                        {{ equipment.get_health_status|title }}
-                    </span>
-                </div>
+        </form>
+    </div>
+    
+    <!-- Equipment Grid -->
+    {% if equipment_list %}
+    <div class="mb-3">
+        <small class="text-muted">
+            Showing {{ equipment_list.count }} equipment item{{ equipment_list.count|pluralize }}
+        </small>
+    </div>
+    
+    <div class="equipment-grid">
+        {% for equipment in equipment_list %}
+        <div class="equipment-card">
+            <div class="equipment-header">
+                <h3 class="equipment-name">
+                    <i class="fas fa-cog"></i> {{ equipment.name }}
+                </h3>
+                <p class="equipment-serial mb-0">
+                    <i class="fas fa-barcode"></i> {{ equipment.serial_number }}
+                </p>
             </div>
-
-            <!-- Related Information -->
-            <div class="detail-card">
-                <h5 class="mb-3">
-                    <i class="fas fa-link"></i> Related
-                </h5>
-                
-                {% if equipment.maintenance_team %}
-                <div class="mb-3">
-                    <a href="{% url 'teams_list' %}" class="btn btn-outline-light w-100">
-                        <i class="fas fa-users"></i> View Team
-                    </a>
+            
+            <div class="equipment-body">
+                <!-- Badges -->
+                <div class="equipment-badges">
+                    <span class="equipment-badge badge-category">
+                        {{ equipment.get_category_display }}
+                    </span>
+                    <span class="equipment-badge badge-department">
+                        {{ equipment.get_department_display }}
+                    </span>
+                    {% if equipment.is_scrapped %}
+                    <span class="equipment-badge badge-scrapped">
+                        <i class="fas fa-exclamation-triangle"></i> Scrapped
+                    </span>
+                    {% else %}
+                    <span class="equipment-badge badge-requests">
+                        {{ equipment.get_open_requests_count }} open request{{ equipment.get_open_requests_count|pluralize }}
+                    </span>
+                    {% endif %}
                 </div>
-                {% endif %}
                 
-                <div class="mb-3">
-                    <a href="{% url 'equipment_list' %}?department={{ equipment.department }}" class="btn btn-outline-light w-100">
-                        <i class="fas fa-building"></i> Department Equipment
-                    </a>
+                <!-- Equipment Info -->
+                <div class="equipment-info">
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt info-icon"></i>
+                        <span class="info-text">{{ equipment.location }}</span>
+                    </div>
+                    
+                    {% if equipment.maintenance_team %}
+                    <div class="info-item">
+                        <i class="fas fa-users info-icon"></i>
+                        <span class="info-text">{{ equipment.maintenance_team.name }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if equipment.assigned_employee %}
+                    <div class="info-item">
+                        <i class="fas fa-user info-icon"></i>
+                        <span class="info-text">
+                            {{ equipment.assigned_employee.get_full_name|default:equipment.assigned_employee.username }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if equipment.default_technician %}
+                    <div class="info-item">
+                        <i class="fas fa-user-tie info-icon"></i>
+                        <span class="info-text">
+                            Tech: {{ equipment.default_technician.get_full_name|default:equipment.default_technician.username }}
+                        </span>
+                    </div>
+                    {% endif %}
                 </div>
                 
-                <div>
-                    <a href="{% url 'reporting' %}" class="btn btn-outline-light w-100">
-                        <i class="fas fa-chart-line"></i> View Reports
+                <!-- Actions -->
+                <div class="equipment-actions">
+                    <a href="{% url 'gearguard:equipment_detail' equipment.pk %}" class="btn-view">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                    <a href="{% url 'gearguard:equipment_update' equipment.pk %}" class="btn-edit">
+                        <i class="fas fa-edit"></i>
                     </a>
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+        <i class="fas fa-cogs"></i>
+        <h3>No Equipment Found</h3>
+        <p>
+            {% if selected_category or selected_department or selected_team or search_query %}
+                No equipment matches your filter criteria. Try adjusting your filters.
+            {% else %}
+                Start by adding your first equipment to the system.
+            {% endif %}
+        </p>
+        {% if not selected_category and not selected_department and not selected_team and not search_query %}
+        <a href="{% url 'gearguard:equipment_create' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus"></i> Add First Equipment
+        </a>
+        {% else %}
+        <a href="{% url 'gearguard:equipment_list' %}" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Clear Filters
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Add any JavaScript for interactive features here
+    // Auto-submit form on filter change is already handled by onchange in HTML
+    
+    // Optional: Add keyboard shortcut for search
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        if (searchInput) {
+            searchInput.focus();
+        }
+    });
 </script>
 {% endblock %}

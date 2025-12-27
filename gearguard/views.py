@@ -92,7 +92,7 @@ def equipment_list(request):
         'selected_team': team,
         'search_query': search,
     }
-    return render(request, 'gearguard/equipment_list.html', context)
+    return render(request, 'gearguard/equipment_detail.html', context)
 
 
 @login_required
