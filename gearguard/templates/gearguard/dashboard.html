@@ -4,8 +4,7 @@
 {% block title %}Dashboard - GearGuard{% endblock %}
 
 {% block extra_css %}
-<<<<<<< HEAD
-=======
+
 <style>
     .dashboard-container {
         background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -170,7 +169,7 @@
         font-weight: 600;
     }
 </style>
->>>>>>> f2c9782093ae85f39d71042520c11cfd2ac3b462
+
 {% endblock %}
 
 {% block content %}
@@ -182,10 +181,10 @@
             <p class="text-muted mb-0">Maintenance Management System</p>
         </div>
         <div>
-            <a href="{% url 'request_create' %}" class="btn btn-primary me-2">
+            <a href="{% url 'gearguard:request_create' %}" class="btn btn-primary me-2">
                 <i class="fas fa-plus"></i> New Request
             </a>
-            <a href="{% url 'kanban_board' %}" class="btn btn-outline-light">
+            <a href="{% url 'gearguard:kanban_board' %}" class="btn btn-outline-light">
                 <i class="fas fa-columns"></i> Kanban Board
             </a>
         </div>
@@ -252,7 +251,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <a href="{% url 'equipment_detail' equipment.pk %}" class="btn btn-sm btn-outline-light">
+                                    <a href="{% url 'gearguard:equipment_detail' equipment.pk %}" class="btn btn-sm btn-outline-light">
                                         View Details
                                     </a>
                                 </div>
@@ -299,7 +298,7 @@
                                 {% if request.is_overdue %}
                                     <span class="badge bg-danger">Overdue</span>
                                 {% endif %}
-                                <a href="{% url 'request_update' request.pk %}" class="btn btn-sm btn-outline-light ms-2">
+                                <a href="{% url 'gearguard:request_update' request.pk %}" class="btn btn-sm btn-outline-light ms-2">
                                     Edit
                                 </a>
                             </div>
@@ -345,19 +344,19 @@
                 </h3>
                 <div class="stat-card">
                     <div class="d-grid gap-2">
-                        <a href="{% url 'request_create' %}" class="btn btn-primary">
+                        <a href="{% url 'gearguard:request_create' %}" class="btn btn-primary">
                             <i class="fas fa-plus"></i> Create Request
                         </a>
-                        <a href="{% url 'equipment_create' %}" class="btn btn-outline-light">
+                        <a href="{% url 'gearguard:equipment_create' %}" class="btn btn-outline-light">
                             <i class="fas fa-cog"></i> Add Equipment
                         </a>
-                        <a href="{% url 'calendar_view' %}" class="btn btn-outline-light">
+                        <a href="{% url 'gearguard:calendar_view' %}" class="btn btn-outline-light">
                             <i class="fas fa-calendar"></i> View Calendar
                         </a>
-                        <a href="{% url 'reporting' %}" class="btn btn-outline-light">
+                        <a href="{% url 'gearguard:reporting' %}" class="btn btn-outline-light">
                             <i class="fas fa-chart-bar"></i> Reports
                         </a>
-                        <a href="{% url 'teams_list' %}" class="btn btn-outline-light">
+                        <a href="{% url 'gearguard:teams_list' %}" class="btn btn-outline-light">
                             <i class="fas fa-users"></i> Teams
                         </a>
                     </div>
@@ -365,20 +364,30 @@
             </div>
 
             <!-- System Info -->
-            <div class="stat-card info">
-                <h6 class="mb-3"><i class="fas fa-info-circle"></i> System Status</h6>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Total Equipment:</span>
-                    <strong>{% load custom_tags %}{{ request|get_equipment_count }}</strong>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Active Teams:</span>
-                    <strong>{% load custom_tags %}{{ request|get_teams_count }}</strong>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span>System Status:</span>
-                    <span class="badge bg-success">Operational</span>
-                </div>
+            <div class="mb-4">
+                </div>{% load custom_tags %}
+
+<div class="stat-card info">
+    <h6 class="mb-3">
+        <i class="fas fa-info-circle"></i> System Status
+    </h6>
+
+    <div class="d-flex justify-content-between mb-2">
+        <span>Total Equipment:</span>
+        <strong>{% get_equipment_count %}</strong>
+    </div>
+
+    <div class="d-flex justify-content-between mb-2">
+        <span>Active Teams:</span>
+        <strong>{% get_teams_count %}</strong>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <span>System Status:</span>
+        <span class="badge bg-success">Operational</span>
+    </div>
+</div>
+
             </div>
         </div>
     </div>

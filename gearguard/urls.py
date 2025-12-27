@@ -12,6 +12,7 @@ urlpatterns = [
     path('equipment/<int:pk>/', views.equipment_detail, name='equipment_detail'),
     path('equipment/create/', views.equipment_create, name='equipment_create'),
     path('equipment/<int:pk>/update/', views.equipment_update, name='equipment_update'),
+    path('equipment/<int:pk>/details/', views.get_equipment_details, name='get_equipment_details'),
     
     # Maintenance Requests
     path('kanban/', views.kanban_board, name='kanban_board'),

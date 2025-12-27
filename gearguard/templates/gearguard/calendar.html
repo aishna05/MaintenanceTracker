@@ -52,10 +52,10 @@
             <p class="text-muted mb-0">Preventive maintenance schedule</p>
         </div>
         <div>
-            <a href="{% url 'request_create' %}" class="btn btn-primary me-2">
+            <a href="{% url 'gearguard:request_create' %}" class="btn btn-primary me-2">
                 <i class="fas fa-plus"></i> Schedule Maintenance
             </a>
-            <a href="{% url 'dashboard' %}" class="btn btn-outline-light">
+            <a href="{% url 'gearguard:dashboard' %}" class="btn btn-outline-light">
                 <i class="fas fa-home"></i> Dashboard
             </a>
         </div>
@@ -90,7 +90,7 @@
             },
             dateClick: function(info) {
                 // Redirect to create request with pre-filled date
-                window.location.href = '{% url "request_create" %}?scheduled_date=' + info.dateStr;
+                window.location.href = '{% url "gearguard:request_create" %}?scheduled_date=' + info.dateStr;
             }
         });
         

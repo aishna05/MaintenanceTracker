@@ -1,0 +1,529 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Maintenance Request - GearGuard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .request-form-container {
+        max-width: 900px;
+        margin: 30px auto;
+    }
+    
+    .form-card {
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 20px;
+    }
+    
+    .form-header {
+        border-bottom: 3px solid #3788d8;
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .form-header h2 {
+        color: #1a1a2e;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .form-header p {
+        color: #6c757d;
+        margin: 5px 0 0 0;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #1a1a2e;
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    .form-label.required:after {
+        content: " *";
+        color: #dc3545;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #3788d8;
+        box-shadow: 0 0 0 0.2rem rgba(55, 136, 216, 0.15);
+    }
+    
+    textarea.form-control {
+        min-height: 120px;
+    }
+    
+    .form-text {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #3788d8 0%, #2d6db5 100%);
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(55, 136, 216, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid #e9ecef;
+    }
+    
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 5px 0 0 0;
+    }
+    
+    .errorlist li {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+    
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: #dc3545;
+    }
+    
+    .priority-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    
+    .priority-low { background: #d4edda; color: #155724; }
+    .priority-medium { background: #fff3cd; color: #856404; }
+    .priority-high { background: #f8d7da; color: #721c24; }
+    
+    .logs-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .log-entry {
+        background: #fff;
+        border-left: 4px solid #3788d8;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+    }
+    
+    .log-entry:last-child {
+        margin-bottom: 0;
+    }
+    
+    .log-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+    
+    .log-user {
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+    
+    .log-date {
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+    
+    .log-action {
+        color: #3788d8;
+        font-weight: 500;
+    }
+    
+    .log-notes {
+        color: #495057;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container request-form-container">
+    <div class="form-card">
+        <div class="form-header">
+            <h2>
+                <i class="fas fa-wrench"></i> {{ action }} Maintenance Request
+            </h2>
+            <p>Fill in the details for the maintenance request</p>
+        </div>
+        
+        <form method="post" id="requestForm">
+            {% csrf_token %}
+            
+            <div class="row">
+                <!-- Equipment Selection -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="{{ form.equipment.id_for_label }}" class="form-label required">
+                            <i class="fas fa-cog"></i> Equipment
+                        </label>
+                        {{ form.equipment }}
+                        {% if form.equipment.errors %}
+                            <div class="errorlist">
+                                {% for error in form.equipment.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text">Select the equipment that needs maintenance</small>
+                    </div>
+                </div>
+                
+                <!-- Request Type -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="{{ form.request_type.id_for_label }}" class="form-label required">
+                            <i class="fas fa-tag"></i> Request Type
+                        </label>
+                        {{ form.request_type }}
+                        {% if form.request_type.errors %}
+                            <div class="errorlist">
+                                {% for error in form.request_type.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Subject -->
+            <div class="form-group">
+                <label for="{{ form.subject.id_for_label }}" class="form-label required">
+                    <i class="fas fa-heading"></i> Subject
+                </label>
+                {{ form.subject }}
+                {% if form.subject.errors %}
+                    <div class="errorlist">
+                        {% for error in form.subject.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <small class="form-text">Brief description of the maintenance issue</small>
+            </div>
+            
+            <!-- Description -->
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}" class="form-label">
+                    <i class="fas fa-align-left"></i> Description
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="errorlist">
+                        {% for error in form.description.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <small class="form-text">Detailed description of the problem and any relevant information</small>
+            </div>
+            
+            <div class="row">
+                <!-- Priority -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="{{ form.priority.id_for_label }}" class="form-label required">
+                            <i class="fas fa-exclamation-circle"></i> Priority
+                        </label>
+                        {{ form.priority }}
+                        {% if form.priority.errors %}
+                            <div class="errorlist">
+                                {% for error in form.priority.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Stage -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="{{ form.stage.id_for_label }}" class="form-label">
+                            <i class="fas fa-tasks"></i> Stage
+                        </label>
+                        {{ form.stage }}
+                        {% if form.stage.errors %}
+                            <div class="errorlist">
+                                {% for error in form.stage.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Scheduled Date -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="{{ form.scheduled_date.id_for_label }}" class="form-label">
+                            <i class="fas fa-calendar-alt"></i> Scheduled Date
+                        </label>
+                        {{ form.scheduled_date }}
+                        {% if form.scheduled_date.errors %}
+                            <div class="errorlist">
+                                {% for error in form.scheduled_date.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Maintenance Team -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="{{ form.maintenance_team.id_for_label }}" class="form-label">
+                            <i class="fas fa-users"></i> Maintenance Team
+                        </label>
+                        {{ form.maintenance_team }}
+                        {% if form.maintenance_team.errors %}
+                            <div class="errorlist">
+                                {% for error in form.maintenance_team.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text">Team responsible for this maintenance</small>
+                    </div>
+                </div>
+                
+                <!-- Assigned To -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="{{ form.assigned_to.id_for_label }}" class="form-label">
+                            <i class="fas fa-user"></i> Assigned To
+                        </label>
+                        {{ form.assigned_to }}
+                        {% if form.assigned_to.errors %}
+                            <div class="errorlist">
+                                {% for error in form.assigned_to.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text">Specific technician assigned to this request</small>
+                    </div>
+                </div>
+            </div>
+            
+            {% if action == 'Update' %}
+            <div class="row">
+                <!-- Completed Date -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="{{ form.completed_date.id_for_label }}" class="form-label">
+                            <i class="fas fa-check-circle"></i> Completed Date
+                        </label>
+                        {{ form.completed_date }}
+                        {% if form.completed_date.errors %}
+                            <div class="errorlist">
+                                {% for error in form.completed_date.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Duration -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="{{ form.duration_hours.id_for_label }}" class="form-label">
+                            <i class="fas fa-clock"></i> Duration (hours)
+                        </label>
+                        {{ form.duration_hours }}
+                        {% if form.duration_hours.errors %}
+                            <div class="errorlist">
+                                {% for error in form.duration_hours.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resolution Notes -->
+            <div class="form-group">
+                <label for="{{ form.resolution_notes.id_for_label }}" class="form-label">
+                    <i class="fas fa-file-alt"></i> Resolution Notes
+                </label>
+                {{ form.resolution_notes }}
+                {% if form.resolution_notes.errors %}
+                    <div class="errorlist">
+                        {% for error in form.resolution_notes.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <small class="form-text">Notes about how the issue was resolved</small>
+            </div>
+            {% endif %}
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {{ action }} Request
+                </button>
+                <a href="{% url 'gearguard:kanban_board' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                {% if action == 'Update' and request %}
+                <button type="button" class="btn btn-danger ms-auto" onclick="if(confirmAction('Are you sure you want to delete this request?')) { document.getElementById('deleteForm').submit(); }">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+    
+    {% if action == 'Update' and logs %}
+    <div class="form-card">
+        <div class="form-header">
+            <h3>
+                <i class="fas fa-history"></i> Activity Log
+            </h3>
+        </div>
+        
+        <div class="logs-card">
+            {% for log in logs %}
+            <div class="log-entry">
+                <div class="log-header">
+                    <span class="log-user">
+                        <i class="fas fa-user-circle"></i> 
+                        {{ log.user.get_full_name|default:log.user.username }}
+                    </span>
+                    <span class="log-date">
+                        <i class="far fa-clock"></i> 
+                        {{ log.timestamp|date:"M d, Y H:i" }}
+                    </span>
+                </div>
+                <div class="log-action">{{ log.action }}</div>
+                {% if log.notes %}
+                <div class="log-notes">{{ log.notes }}</div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p class="text-muted text-center">No activity logged yet</p>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% if action == 'Update' and request %}
+<form id="deleteForm" method="post" action="#" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="_method" value="DELETE">
+</form>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-fill maintenance team when equipment is selected
+    document.addEventListener('DOMContentLoaded', function() {
+        const equipmentSelect = document.getElementById('{{ form.equipment.id_for_label }}');
+        const teamSelect = document.getElementById('{{ form.maintenance_team.id_for_label }}');
+        
+        if (equipmentSelect && teamSelect) {
+            equipmentSelect.addEventListener('change', function() {
+                const equipmentId = this.value;
+                if (equipmentId) {
+                    fetch(`/equipment/${equipmentId}/details/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success' && data.data.maintenance_team) {
+                                teamSelect.value = data.data.maintenance_team;
+                            }
+                        })
+                        .catch(error => console.error('Error fetching equipment details:', error));
+                }
+            });
+        }
+        
+        // Date input type
+        const dateInputs = document.querySelectorAll('input[type="text"][id*="date"]');
+        dateInputs.forEach(input => {
+            input.type = 'date';
+        });
+        
+        // Number input for duration
+        const durationInput = document.getElementById('{{ form.duration_hours.id_for_label }}');
+        if (durationInput) {
+            durationInput.type = 'number';
+            durationInput.step = '0.5';
+            durationInput.min = '0';
+        }
+    });
+    
+    // Form validation
+    document.getElementById('requestForm').addEventListener('submit', function(e) {
+        const equipment = document.getElementById('{{ form.equipment.id_for_label }}').value;
+        const subject = document.getElementById('{{ form.subject.id_for_label }}').value;
+        
+        if (!equipment || !subject.trim()) {
+            e.preventDefault();
+            alert('Please fill in all required fields (Equipment and Subject)');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

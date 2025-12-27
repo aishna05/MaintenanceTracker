@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 def signup_view(request):
     # If user is already logged in, redirect to dashboard
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('gearguard:dashboard')
     
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -47,7 +47,7 @@ def signup_view(request):
             messages.success(request, f"Welcome {name}! Your account has been created.")
             
             # Redirect to dashboard (without namespace if it's in root urls)
-            return redirect('dashboard')
+            return redirect('gearguard:dashboard')
             
         except Exception as e:
             messages.error(request, f"Error creating account: {str(e)}")
@@ -59,7 +59,7 @@ def signup_view(request):
 def login_view(request):
     # If user is already logged in, redirect to dashboard
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('gearguard:dashboard')
     
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -80,7 +80,7 @@ def login_view(request):
             if next_url:
                 return redirect(next_url)
             
-            return redirect('dashboard')
+            return redirect('gearguard:dashboard')
         else:
             messages.error(request, "Invalid email or password")
             return redirect('accounts:login')
