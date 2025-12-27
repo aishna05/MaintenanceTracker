@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Calendar - GearGuard{% endblock %}
+
+{% block extra_css %}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css' rel='stylesheet' />
+<style>
+    .calendar-container {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #fff;
+    }
+    
+    .calendar-wrapper {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 20px;
+    }
+    
+    #calendar {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        color: #000;
+    }
+    
+    .fc-toolbar-title {
+        font-size: 1.5rem !important;
+    }
+    
+    .fc-button {
+        background: #3788d8 !important;
+        border: none !important;
+    }
+    
+    .fc-button:hover {
+        background: #2970b8 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="calendar-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-0">Maintenance Calendar</h1>
+            <p class="text-muted mb-0">Preventive maintenance schedule</p>
+        </div>
+        <div>
+            <a href="{% url 'request_create' %}" class="btn btn-primary me-2">
+                <i class="fas fa-plus"></i> Schedule Maintenance
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-light">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="calendar-wrapper">
+        <div id='calendar'></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var events = {{ events|safe }};
+        
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: events,
+            eventClick: function(info) {
+                if (info.event.url) {
+                    window.location.href = info.event.url;
+                    info.jsEvent.preventDefault();
+                }
+            },
+            dateClick: function(info) {
+                // Redirect to create request with pre-filled date
+                window.location.href = '{% url "request_create" %}?scheduled_date=' + info.dateStr;
+            }
+        });
+        
+        calendar.render();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,492 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kanban Board - GearGuard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .kanban-container {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #fff;
+    }
+    
+    .kanban-board {
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+        padding-bottom: 20px;
+    }
+    
+    .kanban-column {
+        flex: 0 0 300px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 15px;
+        min-height: 500px;
+    }
+    
+    .kanban-column.stage-new {
+        border-top: 4px solid #ffc107;
+    }
+    
+    .kanban-column.stage-in_progress {
+        border-top: 4px solid #17a2b8;
+    }
+    
+    .kanban-column.stage-repaired {
+        border-top: 4px solid #28a745;
+    }
+    
+    .kanban-column.stage-scrap {
+        border-top: 4px solid #6c757d;
+    }
+    
+    .kanban-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .kanban-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .kanban-count {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+    
+    .kanban-card {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 12px;
+        cursor: move;
+        transition: all 0.3s;
+    }
+    
+    .kanban-card:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .kanban-card.dragging {
+        opacity: 0.5;
+        transform: rotate(5deg);
+    }
+    
+    .kanban-card.overdue {
+        border-left: 4px solid #dc3545;
+    }
+    
+    .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #fff;
+    }
+    
+    .card-equipment {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+    
+    .card-footer-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .user-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.75rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .priority-badge {
+        padding: 3px 8px;
+        border-radius: 15px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .priority-critical {
+        background: #dc3545;
+        color: #fff;
+    }
+    
+    .priority-high {
+        background: #fd7e14;
+        color: #fff;
+    }
+    
+    .priority-medium {
+        background: #ffc107;
+        color: #000;
+    }
+    
+    .priority-low {
+        background: #6c757d;
+        color: #fff;
+    }
+    
+    .filter-bar {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .drag-over {
+        background: rgba(55, 136, 216, 0.2);
+        border: 2px dashed #3788d8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="kanban-container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-0">Maintenance Kanban Board</h1>
+            <p class="text-muted mb-0">Drag and drop to update request status</p>
+        </div>
+        <div>
+            <a href="{% url 'request_create' %}" class="btn btn-primary me-2">
+                <i class="fas fa-plus"></i> New Request
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-light">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+        <label class="text-white">Filter by Team:</label>
+        <select id="teamFilter" class="form-select form-select-sm" style="width: 200px;" onchange="filterByTeam(this.value)">
+            <option value="">All Teams</option>
+            {% for team in teams %}
+            <option value="{{ team.id }}" {% if selected_team == team.id|stringformat:"s" %}selected{% endif %}>
+                {{ team.name }}
+            </option>
+            {% endfor %}
+        </select>
+        
+        <div class="ms-auto">
+            <button class="btn btn-sm btn-outline-light" onclick="location.reload()">
+                <i class="fas fa-sync"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="kanban-board">
+        <!-- New Column -->
+        <div class="kanban-column stage-new" data-stage="new">
+            <div class="kanban-header">
+                <div class="kanban-title">
+                    <i class="fas fa-inbox"></i> New
+                </div>
+                <div class="kanban-count">{{ requests.new.count }}</div>
+            </div>
+            <div class="kanban-cards" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                {% for request in requests.new %}
+                <div class="kanban-card {% if request.is_overdue %}overdue{% endif %}" 
+                     draggable="true" 
+                     ondragstart="drag(event)" 
+                     data-id="{{ request.id }}">
+                    <div class="card-title">{{ request.subject }}</div>
+                    <div class="card-equipment">
+                        <i class="fas fa-cog"></i> {{ request.equipment.name }}
+                    </div>
+                    
+                    <div class="d-flex gap-1 flex-wrap mb-2">
+                        <span class="priority-badge priority-{{ request.priority }}">
+                            {{ request.priority }}
+                        </span>
+                        <span class="badge bg-secondary" style="font-size: 0.7rem;">
+                            {{ request.get_request_type_display }}
+                        </span>
+                        {% if request.is_overdue %}
+                        <span class="badge bg-danger" style="font-size: 0.7rem;">
+                            Overdue
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-footer-info">
+                        <div>
+                            {% if request.assigned_to %}
+                            <div class="user-avatar" title="{{ request.assigned_to.get_full_name }}">
+                                {{ request.assigned_to.first_name.0|default:request.assigned_to.username.0 }}{{ request.assigned_to.last_name.0|default:"" }}
+                            </div>
+                            {% else %}
+                            <small class="text-muted">Unassigned</small>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'request_update' request.id %}" class="btn btn-sm btn-outline-light" onclick="event.stopPropagation()">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center text-muted mt-4">No new requests</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- In Progress Column -->
+        <div class="kanban-column stage-in_progress" data-stage="in_progress">
+            <div class="kanban-header">
+                <div class="kanban-title">
+                    <i class="fas fa-spinner"></i> In Progress
+                </div>
+                <div class="kanban-count">{{ requests.in_progress.count }}</div>
+            </div>
+            <div class="kanban-cards" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                {% for request in requests.in_progress %}
+                <div class="kanban-card {% if request.is_overdue %}overdue{% endif %}" 
+                     draggable="true" 
+                     ondragstart="drag(event)" 
+                     data-id="{{ request.id }}">
+                    <div class="card-title">{{ request.subject }}</div>
+                    <div class="card-equipment">
+                        <i class="fas fa-cog"></i> {{ request.equipment.name }}
+                    </div>
+                    
+                    <div class="d-flex gap-1 flex-wrap mb-2">
+                        <span class="priority-badge priority-{{ request.priority }}">
+                            {{ request.priority }}
+                        </span>
+                        <span class="badge bg-secondary" style="font-size: 0.7rem;">
+                            {{ request.get_request_type_display }}
+                        </span>
+                        {% if request.scheduled_date %}
+                        <span class="badge bg-info" style="font-size: 0.7rem;">
+                            {{ request.scheduled_date }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-footer-info">
+                        <div>
+                            {% if request.assigned_to %}
+                            <div class="user-avatar" title="{{ request.assigned_to.get_full_name }}">
+                                {{ request.assigned_to.first_name.0|default:request.assigned_to.username.0 }}{{ request.assigned_to.last_name.0|default:"" }}
+                            </div>
+                            {% else %}
+                            <small class="text-muted">Unassigned</small>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'request_update' request.id %}" class="btn btn-sm btn-outline-light" onclick="event.stopPropagation()">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center text-muted mt-4">No requests in progress</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Repaired Column -->
+        <div class="kanban-column stage-repaired" data-stage="repaired">
+            <div class="kanban-header">
+                <div class="kanban-title">
+                    <i class="fas fa-check-circle"></i> Repaired
+                </div>
+                <div class="kanban-count">{{ requests.repaired.count }}</div>
+            </div>
+            <div class="kanban-cards" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                {% for request in requests.repaired %}
+                <div class="kanban-card" 
+                     draggable="true" 
+                     ondragstart="drag(event)" 
+                     data-id="{{ request.id }}">
+                    <div class="card-title">{{ request.subject }}</div>
+                    <div class="card-equipment">
+                        <i class="fas fa-cog"></i> {{ request.equipment.name }}
+                    </div>
+                    
+                    <div class="d-flex gap-1 flex-wrap mb-2">
+                        {% if request.duration_hours %}
+                        <span class="badge bg-success" style="font-size: 0.7rem;">
+                            {{ request.duration_hours }}h
+                        </span>
+                        {% endif %}
+                        {% if request.completed_date %}
+                        <span class="badge bg-info" style="font-size: 0.7rem;">
+                            {{ request.completed_date|date:"M d" }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-footer-info">
+                        <div>
+                            {% if request.assigned_to %}
+                            <div class="user-avatar" title="{{ request.assigned_to.get_full_name }}">
+                                {{ request.assigned_to.first_name.0|default:request.assigned_to.username.0 }}{{ request.assigned_to.last_name.0|default:"" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'request_update' request.id %}" class="btn btn-sm btn-outline-light" onclick="event.stopPropagation()">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center text-muted mt-4">No repaired items</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Scrap Column -->
+        <div class="kanban-column stage-scrap" data-stage="scrap">
+            <div class="kanban-header">
+                <div class="kanban-title">
+                    <i class="fas fa-times-circle"></i> Scrap
+                </div>
+                <div class="kanban-count">{{ requests.scrap.count }}</div>
+            </div>
+            <div class="kanban-cards" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                {% for request in requests.scrap %}
+                <div class="kanban-card" 
+                     draggable="true" 
+                     ondragstart="drag(event)" 
+                     data-id="{{ request.id }}">
+                    <div class="card-title">{{ request.subject }}</div>
+                    <div class="card-equipment">
+                        <i class="fas fa-cog"></i> {{ request.equipment.name }}
+                    </div>
+                    
+                    <div class="card-footer-info">
+                        <div>
+                            {% if request.assigned_to %}
+                            <div class="user-avatar" title="{{ request.assigned_to.get_full_name }}">
+                                {{ request.assigned_to.first_name.0|default:request.assigned_to.username.0 }}{{ request.assigned_to.last_name.0|default:"" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'request_update' request.id %}" class="btn btn-sm btn-outline-light" onclick="event.stopPropagation()">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center text-muted mt-4">No scrapped items</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.dataset.id);
+        ev.target.classList.add('dragging');
+    }
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+        ev.currentTarget.parentElement.classList.add('drag-over');
+    }
+
+    function dragLeave(ev) {
+        ev.currentTarget.parentElement.classList.remove('drag-over');
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        const data = ev.dataTransfer.getData("text");
+        const column = ev.currentTarget.parentElement;
+        const newStage = column.dataset.stage;
+        
+        column.classList.remove('drag-over');
+        document.querySelector('.dragging').classList.remove('dragging');
+        
+        // Update stage via AJAX
+        fetch(`/requests/${data}/update-stage/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `stage=${newStage}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                location.reload();
+            } else {
+                alert('Error updating stage: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating stage');
+        });
+    }
+
+    function filterByTeam(teamId) {
+        if (teamId) {
+            window.location.href = '?team=' + teamId;
+        } else {
+            window.location.href = '{% url "kanban_board" %}';
+        }
+    }
+</script>
+{% endblock %}

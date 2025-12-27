@@ -1,0 +1,392 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - GearGuard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #fff;
+    }
+    
+    .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .stat-card.critical {
+        background: rgba(220, 53, 69, 0.15);
+        border-color: rgba(220, 53, 69, 0.3);
+    }
+    
+    .stat-card.warning {
+        background: rgba(255, 193, 7, 0.15);
+        border-color: rgba(255, 193, 7, 0.3);
+    }
+    
+    .stat-card.success {
+        background: rgba(40, 167, 69, 0.15);
+        border-color: rgba(40, 167, 69, 0.3);
+    }
+    
+    .stat-card.info {
+        background: rgba(23, 162, 184, 0.15);
+        border-color: rgba(23, 162, 184, 0.3);
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+    
+    .stat-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .equipment-card {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s;
+    }
+    
+    .equipment-card:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateX(5px);
+    }
+    
+    .health-critical {
+        border-left: 4px solid #dc3545;
+    }
+    
+    .health-warning {
+        border-left: 4px solid #ffc107;
+    }
+    
+    .health-good {
+        border-left: 4px solid #28a745;
+    }
+    
+    .technician-card {
+        background: rgba(23, 162, 184, 0.2);
+        border: 1px solid rgba(23, 162, 184, 0.4);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .utilization-circle {
+        width: 120px;
+        height: 120px;
+        margin: 15px auto;
+        border-radius: 50%;
+        background: conic-gradient(
+            #17a2b8 0% var(--utilization),
+            rgba(255, 255, 255, 0.1) var(--utilization) 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .utilization-inner {
+        width: 90px;
+        height: 90px;
+        background: #16213e;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+    .request-item {
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 3px solid #3788d8;
+        padding: 12px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        transition: all 0.2s;
+    }
+    
+    .request-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+    }
+    
+    .request-item.overdue {
+        border-left-color: #dc3545;
+    }
+    
+    .badge-custom {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .nav-tabs {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-tabs .nav-link {
+        color: rgba(255, 255, 255, 0.6);
+        border: none;
+        padding: 10px 20px;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: #fff;
+        background: transparent;
+        border-bottom: 3px solid #3788d8;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-0">GearGuard Dashboard</h1>
+            <p class="text-muted mb-0">Maintenance Management System</p>
+        </div>
+        <div>
+            <a href="{% url 'request_create' %}" class="btn btn-primary me-2">
+                <i class="fas fa-plus"></i> New Request
+            </a>
+            <a href="{% url 'kanban_board' %}" class="btn btn-outline-light">
+                <i class="fas fa-columns"></i> Kanban Board
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card critical">
+                <div class="stat-label">Critical Equipment</div>
+                <div class="stat-number">{{ critical_equipment.count }}</div>
+                <small>Assets needing attention</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card warning">
+                <div class="stat-label">Pending Requests</div>
+                <div class="stat-number">{{ pending_requests }}</div>
+                <small>Awaiting assignment</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card critical">
+                <div class="stat-label">Overdue</div>
+                <div class="stat-number">{{ overdue_requests }}</div>
+                <small>Past scheduled date</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card info">
+                <div class="stat-label">Open Requests</div>
+                <div class="stat-number">{{ pending_requests|add:overdue_requests }}</div>
+                <small>Total active tickets</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8">
+            <!-- Critical Equipment Section -->
+            <div class="mb-4">
+                <h3 class="section-title">
+                    <i class="fas fa-exclamation-triangle text-danger"></i>
+                    Critical Equipment
+                </h3>
+                <div class="stat-card critical">
+                    {% if critical_equipment %}
+                        {% for equipment in critical_equipment %}
+                        <div class="equipment-card health-{{ equipment.get_health_status }}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1">{{ equipment.name }}</h5>
+                                    <small class="text-muted">
+                                        {{ equipment.serial_number }} | {{ equipment.get_category_display }}
+                                    </small>
+                                    <div class="mt-2">
+                                        <span class="badge bg-danger">
+                                            {{ equipment.request_count }} requests (30 days)
+                                        </span>
+                                        <span class="badge bg-secondary">
+                                            {{ equipment.get_department_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <a href="{% url 'equipment_detail' equipment.pk %}" class="btn btn-sm btn-outline-light">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-2x mb-2"></i><br>
+                            No critical equipment at this time
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Requests -->
+            <div class="mb-4">
+                <h3 class="section-title">
+                    <i class="fas fa-clock"></i>
+                    Recent Maintenance Requests
+                </h3>
+                <div class="stat-card">
+                    {% for request in recent_requests %}
+                    <div class="request-item {% if request.is_overdue %}overdue{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ request.subject }}</h6>
+                                <small class="text-muted">
+                                    {{ request.equipment.name }} | 
+                                    {{ request.get_request_type_display }}
+                                </small>
+                                <div class="mt-1">
+                                    <span class="badge badge-custom" style="background: {% if request.stage == 'new' %}#ffc107{% elif request.stage == 'in_progress' %}#17a2b8{% elif request.stage == 'repaired' %}#28a745{% else %}#6c757d{% endif %}">
+                                        {{ request.get_stage_display }}
+                                    </span>
+                                    {% if request.assigned_to %}
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-user"></i> {{ request.assigned_to.get_full_name|default:request.assigned_to.username }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div>
+                                {% if request.is_overdue %}
+                                    <span class="badge bg-danger">Overdue</span>
+                                {% endif %}
+                                <a href="{% url 'request_update' request.pk %}" class="btn btn-sm btn-outline-light ms-2">
+                                    Edit
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted py-4">No recent requests</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-4">
+            <!-- Technician Stats -->
+            {% if technician_stats %}
+            <div class="mb-4">
+                <h3 class="section-title">
+                    <i class="fas fa-user-check"></i>
+                    Your Workload
+                </h3>
+                <div class="technician-card">
+                    <div class="utilization-circle" style="--utilization: {{ technician_stats.utilization }}%;">
+                        <div class="utilization-inner">
+                            {{ technician_stats.utilization }}%
+                        </div>
+                    </div>
+                    <h5>Utilization Rate</h5>
+                    <p class="mb-1">{{ technician_stats.assigned }} active assignments</p>
+                    <p class="text-muted small">Out of {{ technician_stats.total }} total</p>
+                    <a href="{% url 'kanban_board' %}" class="btn btn-outline-light btn-sm mt-2">
+                        View My Tasks
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="mb-4">
+                <h3 class="section-title">
+                    <i class="fas fa-bolt"></i>
+                    Quick Actions
+                </h3>
+                <div class="stat-card">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'request_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Request
+                        </a>
+                        <a href="{% url 'equipment_create' %}" class="btn btn-outline-light">
+                            <i class="fas fa-cog"></i> Add Equipment
+                        </a>
+                        <a href="{% url 'calendar_view' %}" class="btn btn-outline-light">
+                            <i class="fas fa-calendar"></i> View Calendar
+                        </a>
+                        <a href="{% url 'reporting' %}" class="btn btn-outline-light">
+                            <i class="fas fa-chart-bar"></i> Reports
+                        </a>
+                        <a href="{% url 'teams_list' %}" class="btn btn-outline-light">
+                            <i class="fas fa-users"></i> Teams
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Info -->
+            <div class="stat-card info">
+                <h6 class="mb-3"><i class="fas fa-info-circle"></i> System Status</h6>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Total Equipment:</span>
+                    <strong>{% load custom_tags %}{{ request|get_equipment_count }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Active Teams:</span>
+                    <strong>{% load custom_tags %}{{ request|get_teams_count }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>System Status:</span>
+                    <span class="badge bg-success">Operational</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh every 60 seconds
+    setTimeout(function() {
+        location.reload();
+    }, 60000);
+</script>
+{% endblock %}
